@@ -1,17 +1,59 @@
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
 
-public class Copas {
+class ArquivoTextoLeitura {
+
+    private BufferedReader entrada;
+
+    ArquivoTextoLeitura(String nomeArquivo) {
+
+        try {
+            entrada = new BufferedReader(new FileReader(nomeArquivo));
+        } catch (FileNotFoundException excecao) {
+            System.out.println("Arquivo nao encontrado");
+        }
+    }
+
+    public void fecharArquivo() {
+
+        try {
+            entrada.close();
+        } catch (IOException excecao) {
+            System.out.println("Erro no fechamento do arquivo de leitura: " + excecao);
+        }
+    }
+
+    @SuppressWarnings("finally")
+    public String ler() {
+
+        String textoEntrada = null;
+
+        try {
+            textoEntrada = entrada.readLine();
+        } catch (EOFException excecao) { // Excecao de final de arquivo.
+            textoEntrada = null;
+        } catch (IOException excecao) {
+            System.out.println("Erro de leitura: " + excecao);
+            textoEntrada = null;
+        } finally {
+            return textoEntrada;
+        }
+    }
+}
+
+public class CopasLeituraArquivo {
     public static Scanner sc = new Scanner(System.in);
+    public static Jogo games[] = new Jogo[5000];
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws FileNotFoundException {
         MyIO.setCharset("UTF-8");
 
-        String entrada;
+        String nomeArquivo;
+        String texto;
+        ArquivoTextoLeitura arquivoLeitura;
 
-        Jogo jogo = new Jogo();
-
-        Jogo games[] = new Jogo[1000];
+        nomeArquivo = "/tmp/partidas.txt";
+        arquivoLeitura = new ArquivoTextoLeitura(nomeArquivo);
 
         int colocar = 0;
 
@@ -19,28 +61,29 @@ public class Copas {
             games[j] = new Jogo();
         }
 
-        entrada = MyIO.readLine();
-        while (!entrada.equals("FIM")) {
-            games[colocar].BotarVetorString(entrada);
-            colocar++;
-            entrada = MyIO.readLine();
+        try {
+
+            texto = arquivoLeitura.ler();
+            while (texto != null) {
+                games[colocar].BotarVetorString(texto);
+                // games[colocar].imprimir();
+                colocar++;
+                texto = arquivoLeitura.ler();
+            }
+            arquivoLeitura.fecharArquivo();
+            // sc.close();
+        } catch (Error error) {
+            System.out.print("Erro ao abrir arquivo! " + error);
         }
 
-        int entrar = MyIO.readInt();
-        String vetorEntrada[] = new String[entrar];
-        for (int i = 0; i < entrar; i++) {
-
-            vetorEntrada[i] = MyIO.readLine();
-
+        String entrar = MyIO.readLine();
+        for (int i = 0; i < Integer.valueOf(entrar); i++) {
+            String novaLinha = MyIO.readLine();
+            fazer(novaLinha);
         }
-
-        for (int j = 0; j < vetorEntrada.length; j++) {
-            fazer(vetorEntrada[j], games);
-        }
-
     }
 
-    public static void fazer(String entrada, Jogo games[]) {
+    public static void fazer(String entrada) {
         String vetor[] = new String[10];
         vetor = entrada.split("/");
         String vetor2[] = new String[10];
@@ -201,6 +244,7 @@ class Jogo {
         System.out.print("[" + this.selecao1 + " (" + this.placSelecao1 + ") x (" + this.placSelecao2 + ") "
                 + this.selecao2 + "] ");
         System.out.print("[" + this.local + "]\n");
+
     }
 
 }

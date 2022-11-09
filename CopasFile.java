@@ -1,17 +1,12 @@
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
 
-public class Copas {
+public class CopasFile {
     public static Scanner sc = new Scanner(System.in);
+    public static Jogo games[] = new Jogo[5000];
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws FileNotFoundException {
         MyIO.setCharset("UTF-8");
-
-        String entrada;
-
-        Jogo jogo = new Jogo();
-
-        Jogo games[] = new Jogo[1000];
 
         int colocar = 0;
 
@@ -19,28 +14,28 @@ public class Copas {
             games[j] = new Jogo();
         }
 
-        entrada = MyIO.readLine();
-        while (!entrada.equals("FIM")) {
-            games[colocar].BotarVetorString(entrada);
-            colocar++;
-            entrada = MyIO.readLine();
+        try {
+            File arquivo = new File("/tmp/partidas.txt");
+            Scanner sc = new Scanner(arquivo);
+            while (sc.hasNextLine()) {
+                games[colocar].BotarVetorString(sc.nextLine());
+                // games[colocar].imprimir();
+                colocar++;
+            }
+            sc.close();
+        } catch (Error err) {
+            System.out.print("Erro ao abrir arquivo! " + err);
         }
 
-        int entrar = MyIO.readInt();
-        String vetorEntrada[] = new String[entrar];
-        for (int i = 0; i < entrar; i++) {
-
-            vetorEntrada[i] = MyIO.readLine();
-
-        }
-
-        for (int j = 0; j < vetorEntrada.length; j++) {
-            fazer(vetorEntrada[j], games);
+        String entrar = MyIO.readLine();
+        for (int i = 0; i < Integer.valueOf(entrar); i++) {
+            String novaLinha = MyIO.readLine();
+            fazer(novaLinha);
         }
 
     }
 
-    public static void fazer(String entrada, Jogo games[]) {
+    public static void fazer(String entrada) {
         String vetor[] = new String[10];
         vetor = entrada.split("/");
         String vetor2[] = new String[10];
@@ -201,6 +196,7 @@ class Jogo {
         System.out.print("[" + this.selecao1 + " (" + this.placSelecao1 + ") x (" + this.placSelecao2 + ") "
                 + this.selecao2 + "] ");
         System.out.print("[" + this.local + "]\n");
+
     }
 
 }

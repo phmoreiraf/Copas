@@ -190,6 +190,22 @@ public class CopasBolhas {
         String conteudo = String.format("769233\t%d\t%d\t%d", tempoFinal, ordenar.comparar, ordenar.movimentar);
         arquivoEscrita.escrever(conteudo);
         arquivoEscrita.fecharArquivo();
+
+        /*
+         * try {
+         * File log = new File("769233_bolha.txt");
+         * String str = String.format("769233\t%d\t%d\t%d", tempoFinal,
+         * ordenar.comparar,
+         * ordenar.movimentar);
+         * BufferedWriter writer = new BufferedWriter(new
+         * FileWriter("769233_bolha.txt"));
+         * writer.write(str);
+         * // System.out.println(str);
+         * writer.close();
+         * } catch (Exception err) {
+         * System.err.println(err.getMessage());
+         * }
+         */
     }
 
     public static Jogo fazer(String entrada) throws Exception {

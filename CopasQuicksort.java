@@ -221,6 +221,22 @@ public class CopasQuicksort {
         arquivoEscrita.fecharArquivo();
         // ordenar.bolha(ordenador);
 
+        /*
+         * try {
+         * File log = new File("769233_quicksort.txt");
+         * String str = String.format("769233\t%d\t%d\t%d", tempoFinal,
+         * ordenar.comparar,
+         * ordenar.movimentar);
+         * BufferedWriter writer = new BufferedWriter(new
+         * FileWriter("769233_quicksort.txt"));
+         * writer.write(str);
+         * // System.out.println(str);
+         * writer.close();
+         * } catch (Exception err) {
+         * System.err.println(err.getMessage());
+         * }
+         */
+
     }
 
     public static Jogo fazer(String entrada) throws Exception {

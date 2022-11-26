@@ -1,40 +1,6 @@
 import java.util.*;
+
 import java.io.*;
-
-class ArquivoTextoEscrita {
-
-    private BufferedWriter saida;
-
-    ArquivoTextoEscrita(String nomeArquivo) {
-
-        try {
-            saida = new BufferedWriter(new FileWriter(nomeArquivo));
-        } catch (FileNotFoundException excecao) {
-            System.out.println("Arquivo nao encontrado");
-        } catch (IOException excecao) {
-            System.out.println("Erro na abertura do arquivo de escrita: " + excecao);
-        }
-    }
-
-    public void fecharArquivo() {
-
-        try {
-            saida.close();
-        } catch (IOException excecao) {
-            System.out.println("Erro no fechamento do arquivo de escrita: " + excecao);
-        }
-    }
-
-    public void escrever(String games) {
-
-        try {
-            saida.write(games);
-            saida.newLine();
-        } catch (IOException excecao) {
-            System.out.println("Erro de entrada/saída " + excecao);
-        }
-    }
-}
 
 class ArquivoTextoLeitura {
 
@@ -74,75 +40,160 @@ class ArquivoTextoLeitura {
             return textoEntrada;
         }
     }
-}
-
-class ordenar {
-
-    public static int comparar;
-    public static int movimentar;
-
-    public static boolean comparacao(Jogo analizado, Jogo atual) {
-        if (analizado.getAno() > atual.getAno()) {
-            comparar++;
-            movimentar++;
-            return true;
-        } else if (analizado.getAno() == atual.getAno()) {
-            comparar++;
-            if (analizado.getMes() > atual.getMes()) {
-                comparar++;
-                movimentar++;
-                return true;
-            } else if (analizado.getMes() == atual.getMes()) {
-                comparar++;
-                if (analizado.getDia() > atual.getDia()) {
-                    comparar++;
-                    movimentar++;
-                    return true;
-                } else if (analizado.getDia() == atual.getDia()) {
-                    comparar++;
-                    if (analizado.getSelecao1().compareTo(atual.getSelecao1()) > 0) {
-                        comparar++;
-                        movimentar++;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static void insercao(Jogo[] array) {
-        int n = array.length;
-        for (int i = 1; i < n; i++) {
-            Jogo tmp = array[i];
-            int j = i - 1;
-
-            while ((j >= 0) && (comparacao(array[j], tmp))) {
-                array[j + 1] = array[j];
-                j--;
-            }
-            array[j + 1] = tmp;
-        }
-    }
 
 }
 
-public class CopasInsercao {
+class Nodo {
 
+    private Jogo item;
+    private Nodo esquerda;
+    private Nodo direita;
+
+    public Nodo(Jogo item) {
+        this.item = item;
+        this.esquerda = null;
+        this.direita = null;
+    }
+
+    public Nodo() {
+        this.item = new Jogo();
+        this.esquerda = null;
+        this.direita = null;
+    }
+
+    public Jogo getItem() {
+        return item;
+    }
+
+    public void setItem(Jogo item) {
+        this.item = item;
+    }
+
+    public Nodo getEsquerda() {
+        return esquerda;
+    }
+
+    public void setEsquerda(Nodo esquerda) {
+        this.esquerda = esquerda;
+    }
+
+    public Nodo getDireita() {
+        return direita;
+    }
+
+    public void setDireita(Nodo direita) {
+        this.direita = direita;
+    }
+}
+
+class ABB {
+
+    private Nodo raiz;
+
+    public ABB() {
+        raiz = null;
+    }
+
+    // valorPesquisado: 10
+    public Jogo pesquisar(int valorPesquisado) throws Exception {
+        return (pesquisar(valorPesquisado, raiz));
+    }
+
+    // 1.a execução:
+    // raizSubarvore: 16
+    // valorPesquisado: 10
+    // retorno: pesquisa na subárvore esquerda --> null
+    // 2.a execução:
+    // raizSubarvore: 8
+    // valorPesquisado: 10
+    // retorno: pesquisa na subárvore direita -- > null
+    // 3.a execução:
+    // raisSubarvore: null
+    // valorPesquisado: 10
+    // retorno: null
+    private Jogo pesquisar(int valorPesquisado, Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore == null) {
+            // return null;
+            throw new Exception("A chave de pesquisa nao encontrada!");
+        } else if (raizSubarvore.getItem().getValor() == valorPesquisado) {
+            return raizSubarvore.getItem();
+        } else if (valorPesquisado > raizSubarvore.getItem().getValor()) {
+            return pesquisar(valorPesquisado, raizSubarvore.getDireita());
+        } else {
+            return pesquisar(valorPesquisado, raizSubarvore.getEsquerda());
+        }
+    }
+
+    public void inserir(Jogo novo) throws Exception {
+        this.raiz = inserir(novo, this.raiz);
+    }
+
+    private Nodo inserir(Jogo novo, Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore == null) {
+            raizSubarvore = new Nodo(novo);
+        } else if (raizSubarvore.getItem().getValor() == novo.getValor()) {
+            throw new Exception("Nao foi possivel inserir o item: chave repetida");
+        } else if (raizSubarvore.getItem().getValor() > novo.getValor()) {
+            raizSubarvore.setEsquerda(inserir(novo, raizSubarvore.getEsquerda()));
+        } else {
+            raizSubarvore.setDireita(inserir(novo, raizSubarvore.getDireita()));
+        }
+
+        return raizSubarvore;
+
+    }
+
+    public void retirar(int valorPesquisado) throws Exception {
+
+        this.raiz = remover(valorPesquisado, this.raiz);
+
+    }
+
+    private Nodo remover(int valorPesquisado, Nodo raizSubarvore) throws Exception {
+        if (raizSubarvore == null) {
+            throw new Exception("Nao foi possivel remover a chave: chave nao encontrada");
+        } else if (raizSubarvore.getItem().getValor() == valorPesquisado) {
+            if (raizSubarvore.getEsquerda() == null) {
+                raizSubarvore = raizSubarvore.getDireita();
+            } else if (raizSubarvore.getDireita() == null) {
+                raizSubarvore = raizSubarvore.getEsquerda();
+            } else {
+                raizSubarvore.setEsquerda(antecessor(raizSubarvore, raizSubarvore.getEsquerda()));
+            }
+        } else if (raizSubarvore.getItem().getValor() > valorPesquisado) {
+            raizSubarvore.setEsquerda(remover(valorPesquisado, raizSubarvore.getEsquerda()));
+        } else {
+            raizSubarvore.setDireita(remover(valorPesquisado, raizSubarvore.getDireita()));
+        }
+        return raizSubarvore;
+    }
+
+    private Nodo antecessor(Nodo noRetirar, Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore.getDireita() == null) {
+            noRetirar.setItem(raizSubarvore.getItem());
+            raizSubarvore = raizSubarvore.getEsquerda();
+        } else {
+            raizSubarvore.setDireita(antecessor(noRetirar, raizSubarvore.getDireita()));
+        }
+
+        return raizSubarvore;
+    }
+}
+
+public class CopasArvoreBinaria {
     public static Scanner sc = new Scanner(System.in);
-    public static Jogo games[] = new Jogo[1500];
-    public static Jogo ordenador[];
-    public static long tempoFinal;
+    public static Jogo games[] = new Jogo[1000];
+    public static Jogo games2;
+    public static ABB Arvore = new ABB();
 
     public static void main(String[] args) throws Exception {
         MyIO.setCharset("UTF-8");
 
         String nomeArquivo;
         String texto;
-
-        ArquivoTextoEscrita arquivoEscrita;
         ArquivoTextoLeitura arquivoLeitura;
 
         nomeArquivo = "/tmp/partidas.txt";
@@ -163,53 +214,55 @@ public class CopasInsercao {
                 colocar++;
                 texto = arquivoLeitura.ler();
             }
-            arquivoLeitura.fecharArquivo();
+            // arquivoLeitura.fecharArquivo();
             // sc.close();
         } catch (Error error) {
             System.out.print("Erro ao abrir arquivo! " + error);
         }
 
-        int tamanho = Integer.valueOf(MyIO.readLine());
-        Jogo ordenador[] = new Jogo[tamanho];
+        String entrada = MyIO.readLine();
 
-        for (int i = 0; i < tamanho; i++) {
-            String novaLinha = MyIO.readLine();
-            Jogo resposta = fazer(novaLinha);
-            ordenador[i] = resposta;
+        do {
+
+            games2 = fazer(entrada);
+            try {
+                Arvore.inserir(games2);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            // String novaLinha = MyIO.readLine();
+            // fazer(novaLinha);
+
+            entrada = MyIO.readLine();
+        } while (!entrada.equals("FIM"));
+
+        int entrada2 = MyIO.readInt();
+
+        try {
+
+            for (int i = 0; i < entrada2; i++) {
+
+                String entrada3 = MyIO.readLine();
+                // switch (comando) {
+                // case:"";
+                // break;
+                // }
+
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+
+        }
+        try {
+            // Arvore.mostrar();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        long tempoInicio = System.currentTimeMillis();
-        ordenar.insercao(ordenador);
-        tempoFinal = System.currentTimeMillis() - tempoInicio;
-
-        for (int o = 0; o < ordenador.length; o++) {
-            ordenador[o].imprimir();
-        }
-
-        arquivoEscrita = new ArquivoTextoEscrita("769233_insercao.txt");
-        String conteudo = String.format("769233\t%d\t%d\t%d", tempoFinal, ordenar.comparar, ordenar.movimentar);
-        arquivoEscrita.escrever(conteudo);
-        arquivoEscrita.fecharArquivo();
-
-        /*
-         * try {
-         * File log = new File("769233_insercao.txt");
-         * String str = String.format("769233\t%d\t%d\t%d", tempoFinal,
-         * ordenar.comparar,
-         * ordenar.movimentar);
-         * BufferedWriter writer = new BufferedWriter(new
-         * FileWriter("769233_insercao.txt"));
-         * writer.write(str);
-         * // System.out.println(str);
-         * writer.close();
-         * } catch (Exception err) {
-         * System.err.println(err.getMessage());
-         * }
-         */
     }
 
-    public static Jogo fazer(String entrada) throws Exception {
-        Jogo respostas = new Jogo();
+    public static Jogo fazer(String entrada) {
         String vetor[] = new String[10];
         vetor = entrada.split("/");
         String vetor2[] = new String[10];
@@ -218,13 +271,13 @@ public class CopasInsercao {
             if (games[i].getDia() == Integer.valueOf(vetor[0]) && games[i].getMes() == Integer.valueOf(vetor[1])
                     && games[i].getAno() == Integer.valueOf(vetor2[0])) {
                 if (games[i].getSelecao1().equals(vetor2[1])) {
-                    respostas = games[i];
                     // games[i].imprimir();
-
+                    return games[i];
                 }
+
             }
         }
-        return respostas;
+        return null;
     }
 
 }
@@ -240,9 +293,10 @@ class Jogo {
     private int placSelecao1;
     private int placSelecao2;
     private String local;
+    private int valor;
 
     public Jogo(int dia, int mes, int ano, String etapa, String selecao1, String selecao2, int placSelecao1,
-            int placSelecao2, String local) {
+            int placSelecao2, String local, int valor) {
         this.dia = dia;
         this.mes = mes;
         this.ano = ano;
@@ -252,6 +306,7 @@ class Jogo {
         this.placSelecao1 = placSelecao1;
         this.placSelecao2 = placSelecao2;
         this.local = local;
+        this.valor = valor;
     }
 
     public Jogo() {
@@ -264,6 +319,7 @@ class Jogo {
         this.placSelecao1 = 0;
         this.placSelecao2 = 0;
         this.local = "";
+        this.valor = 0;
     }
 
     public void BotarVetorString(String entrada) {
@@ -291,6 +347,7 @@ class Jogo {
         this.placSelecao1 = jogo.placSelecao1;
         this.placSelecao2 = jogo.placSelecao2;
         this.local = jogo.local;
+        this.valor = jogo.valor;
     }
 
     public int getDia() {
@@ -365,11 +422,21 @@ class Jogo {
         this.local = local;
     }
 
+    public int getValor() {
+        return valor;
+    }
+
+    public void setValor(int valor) {
+        this.valor = valor;
+    }
+
+    // quando desiss
     public void imprimir() {
         System.out.print("[COPA " + this.ano + "] ");
         System.out.print("[" + this.etapa + "] ");
         System.out.print("[" + this.dia + "/" + this.mes + "] ");
-        System.out.print("[" + this.selecao1 + " (" + this.placSelecao1 + ") x (" + this.placSelecao2 + ") "
+        System.out.print("[" + this.selecao1 + " (" + this.placSelecao1 + ") x (" +
+                this.placSelecao2 + ") "
                 + this.selecao2 + "] ");
         System.out.print("[" + this.local + "]\n");
 

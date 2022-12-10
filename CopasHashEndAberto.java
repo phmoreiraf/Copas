@@ -76,129 +76,101 @@ class ArquivoTextoLeitura {
     }
 }
 
-class ABB {
-    private Nodo raiz;
+class Hash {
+    private JogoCopa[] tabela;
+    private int M;
     public static int comparar;
+    // public static int tentativa;
 
-    public ABB() {
-        raiz = null;
-    }
+    Hash(int tamanho) {
+        this.M = tamanho;
 
-    public JogoCopa pesquisar(JogoCopa chave) {
-        return pesquisar(this.raiz, chave);
-    }
+        tabela = new JogoCopa[tamanho];
 
-    private JogoCopa pesquisar(Nodo raizsubarvore, JogoCopa chave) {
-        JogoCopa jogoRaiz;
-        Nodo esquerda, direita;
-
-        if (raizsubarvore == null) {
-            comparar++;
-            System.out.println("NAO");
-            return null;
-
-        } else {
-            comparar++;
-            jogoRaiz = raizsubarvore.getItem();
-            esquerda = raizsubarvore.getEsquerda();
-            direita = raizsubarvore.getDireita();
-
-            System.out.print("[" + jogoRaiz.saidaPradao() + "] - ");
-
-            if (chave.equals(jogoRaiz)) {
-                comparar++;
-                System.out.println("SIM");
-                return raizsubarvore.getItem();
-
-            } else if (!chave.eMenor(jogoRaiz)) {
-                comparar++;
-                return pesquisar(direita, chave);
-
-            } else {
-                comparar++;
-                return pesquisar(esquerda, chave);
-            }
+        for (int i = 0; i < tamanho; i++) {
+            tabela[i] = null;
         }
+
+    }
+
+    // Trocar para retornar uma string e a chave tambem, dentro da funcao converter
+    // para int
+    private int funcaoHash(JogoCopa chave, int i) {
+
+        // tentativa = 0;
+        // criar outra variavel, i++ com selecao1.lenght, colocar o i como 1;
+        // chave.getSelecao1();
+        int soma;
+        int soma1 = 0;
+        int total;
+
+        soma = chave.getDia() + chave.getMes() + chave.getAno();
+
+        char selecoes[] = chave.getSelecao1().toCharArray();
+        for (int j = 0; j < selecoes.length; j++) {
+            soma1 = soma1 + (selecoes[j] * (j + 1));
+        }
+        total = soma + soma1;
+        return (((total) % M) + ((i * total) % 311)) % M;
+
     }
 
     public void inserir(JogoCopa novo) throws Exception {
-        this.raiz = inserir(this.raiz, novo);
-    }
 
-    private Nodo inserir(Nodo raizsubarvore, JogoCopa novo) throws Exception {
-        JogoCopa jogoRaiz;
-        Nodo esquerda, direita;
+        int posicao, tentativa;
+        boolean inseriu = false;
+        tentativa = 0;
 
-        if (raizsubarvore == null) {
-            raizsubarvore = new Nodo(novo);
-        } else {
-            jogoRaiz = raizsubarvore.getItem();
-            esquerda = raizsubarvore.getEsquerda();
-            direita = raizsubarvore.getDireita();
-
-            if (novo.equals(jogoRaiz)) {
-                throw new Exception("Não foi possível inserir o item na árvore: chave já inseriada anteriormente!");
-
-            } else if (novo.eMenor(jogoRaiz)) {
-                raizsubarvore.setEsquerda(inserir(esquerda, novo));
-
+        while ((tentativa < M) && (!inseriu)) {
+            // Sera get.item quando for na copa
+            posicao = funcaoHash(novo, tentativa);
+            if (tabela[posicao] == null) {
+                tabela[posicao] = novo;
+                inseriu = true;
+            } else if (tabela[posicao] == novo) {
+                throw new Exception("Chave repetida");
             } else {
-                raizsubarvore.setDireita(inserir(direita, novo));
+                tentativa++;
             }
         }
-
-        return raizsubarvore;
+        if (!inseriu) {
+            throw new Exception("Nao foi possivel inserir o elemento na tabela;");
+        }
     }
 
-}
+    public JogoCopa pesquisar(JogoCopa chave) /* throws Exception */ {
+        int posicao, tentativa;
+        tentativa = 0;
 
-class Nodo {
-    private JogoCopa item;
-    private Nodo esquerda;
-    private Nodo direita;
-
-    public Nodo(JogoCopa item) {
-        this.item = item;
-        this.esquerda = null;
-        this.direita = null;
-    }
-
-    public Nodo() {
-        this.item = new JogoCopa();
-        this.esquerda = null;
-        this.direita = null;
-    }
-
-    public JogoCopa getItem() {
-        return item;
-    }
-
-    public Nodo getEsquerda() {
-        return esquerda;
-    }
-
-    public Nodo getDireita() {
-        return direita;
-    }
-
-    public void setItem(JogoCopa item) {
-        this.item = item;
-    }
-
-    public void setEsquerda(Nodo esquerda) {
-        this.esquerda = esquerda;
-    }
-
-    public void setDireita(Nodo direita) {
-        this.direita = direita;
+        while (tentativa < M) {
+            posicao = funcaoHash(chave, tentativa);
+            if (tabela[posicao] == null) {
+                comparar++;
+                System.out.println("NAO");
+                break;
+                // throw new Exception("Pesquisa sem sucesso");
+            } else if (tabela[posicao] == chave) {
+                comparar++;
+                // System.out.println(posicao);
+                // System.out.print("[" + tabela[posicao].saidaPradao() + "] - ");
+                System.out.println(posicao + " SIM");
+                break;
+                // return tabela[posicao];
+            } else {
+                comparar++;
+            }
+            tentativa++;
+        }
+        // throw new Exception("Pesquisa sem sucesso");
+        return new JogoCopa();
     }
 }
 
-public class CopasArvoreBinaria {
+public class CopasHashEndAberto {
     public static Scanner sc = new Scanner(System.in);
     public static JogoCopa games[] = new JogoCopa[1000];
     public static JogoCopa games2;
-    public static ABB Arvore = new ABB();
+    public static Hash TabelaHash = new Hash(953);
     public static long tempoFinal;
     // public static Jogo jogo;
 
@@ -241,7 +213,9 @@ public class CopasArvoreBinaria {
         while (!entrada.equals("FIM")) {
             games2 = fazer(entrada);
             try {
-                Arvore.inserir(games2);
+
+                TabelaHash.inserir(games2);
+
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -250,13 +224,14 @@ public class CopasArvoreBinaria {
         }
 
         // SEGUNDA PARTE
+
         entrada = MyIO.readLine();
 
         long tempoInicio = System.currentTimeMillis();
         while (!entrada.equals("FIM")) {
             games2 = fazer(entrada);
             try {
-                Arvore.pesquisar(games2);
+                TabelaHash.pesquisar(games2);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 e.printStackTrace();
@@ -266,8 +241,8 @@ public class CopasArvoreBinaria {
         }
         tempoFinal = System.currentTimeMillis() - tempoInicio;
 
-        arquivoEscrita = new ArquivoTextoEscrita("769233_arvoreBinaria.txt");
-        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, ABB.comparar);
+        arquivoEscrita = new ArquivoTextoEscrita("769233_hashRehashing.txt");
+        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, Hash.comparar);
         arquivoEscrita.escrever(conteudo);
         arquivoEscrita.fecharArquivo();
 
@@ -441,28 +416,33 @@ class JogoCopa {
 
     }
 
-    public boolean eMenor(JogoCopa jogo) {
-        if (this.getAno() < jogo.getAno()) {
-            return true;
-        } else if (this.getAno() == jogo.getAno()) {
-            if (this.getMes() < jogo.getMes()) {
-                return true;
-            } else if (this.getMes() == jogo.getMes()) {
-                if (this.getDia() < jogo.getDia()) {
-                    return true;
-                } else if (this.getDia() == jogo.getDia()) {
-                    if (this.getSelecao1().compareTo(jogo.getSelecao1()) < 0) {
-                        return true;
-                    }
-                }
-            }
-        }
+    /*
+     * public boolean eMenor(JogoCopa jogo) {
+     * if (this.getAno() < jogo.getAno()) {
+     * return true;
+     * } else if (this.getAno() == jogo.getAno()) {
+     * if (this.getMes() < jogo.getMes()) {
+     * return true;
+     * } else if (this.getMes() == jogo.getMes()) {
+     * if (this.getDia() < jogo.getDia()) {
+     * return true;
+     * } else if (this.getDia() == jogo.getDia()) {
+     * if (this.getSelecao1().compareTo(jogo.getSelecao1()) < 0) {
+     * return true;
+     * }
+     * }
+     * }
+     * }
+     * 
+     * return false;
+     * }
+     */
 
-        return false;
-    }
-
-    public String saidaPradao() {
-        return this.getDia() + "/" + this.getMes() + "/" + this.getAno() + ";" + this.getSelecao1();
-    }
+    /*
+     * public String saidaPradao() {
+     * return this.getDia() + "/" + this.getMes() + "/" + this.getAno() + ";" +
+     * this.getSelecao1();
+     * }
+     */
 
 }

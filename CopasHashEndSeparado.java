@@ -76,129 +76,229 @@ class ArquivoTextoLeitura {
     }
 }
 
-class ABB {
-    private Nodo raiz;
-    public static int comparar;
+class Celula {
 
-    public ABB() {
-        raiz = null;
-    }
-
-    public JogoCopa pesquisar(JogoCopa chave) {
-        return pesquisar(this.raiz, chave);
-    }
-
-    private JogoCopa pesquisar(Nodo raizsubarvore, JogoCopa chave) {
-        JogoCopa jogoRaiz;
-        Nodo esquerda, direita;
-
-        if (raizsubarvore == null) {
-            comparar++;
-            System.out.println("NAO");
-            return null;
-
-        } else {
-            comparar++;
-            jogoRaiz = raizsubarvore.getItem();
-            esquerda = raizsubarvore.getEsquerda();
-            direita = raizsubarvore.getDireita();
-
-            System.out.print("[" + jogoRaiz.saidaPradao() + "] - ");
-
-            if (chave.equals(jogoRaiz)) {
-                comparar++;
-                System.out.println("SIM");
-                return raizsubarvore.getItem();
-
-            } else if (!chave.eMenor(jogoRaiz)) {
-                comparar++;
-                return pesquisar(direita, chave);
-
-            } else {
-                comparar++;
-                return pesquisar(esquerda, chave);
-            }
-        }
-    }
-
-    public void inserir(JogoCopa novo) throws Exception {
-        this.raiz = inserir(this.raiz, novo);
-    }
-
-    private Nodo inserir(Nodo raizsubarvore, JogoCopa novo) throws Exception {
-        JogoCopa jogoRaiz;
-        Nodo esquerda, direita;
-
-        if (raizsubarvore == null) {
-            raizsubarvore = new Nodo(novo);
-        } else {
-            jogoRaiz = raizsubarvore.getItem();
-            esquerda = raizsubarvore.getEsquerda();
-            direita = raizsubarvore.getDireita();
-
-            if (novo.equals(jogoRaiz)) {
-                throw new Exception("Não foi possível inserir o item na árvore: chave já inseriada anteriormente!");
-
-            } else if (novo.eMenor(jogoRaiz)) {
-                raizsubarvore.setEsquerda(inserir(esquerda, novo));
-
-            } else {
-                raizsubarvore.setDireita(inserir(direita, novo));
-            }
-        }
-
-        return raizsubarvore;
-    }
-
-}
-
-class Nodo {
     private JogoCopa item;
-    private Nodo esquerda;
-    private Nodo direita;
+    private Celula proximo;
 
-    public Nodo(JogoCopa item) {
-        this.item = item;
-        this.esquerda = null;
-        this.direita = null;
+    Celula() {
+        this.item = new JogoCopa();
+        this.proximo = null;
     }
 
-    public Nodo() {
-        this.item = new JogoCopa();
-        this.esquerda = null;
-        this.direita = null;
+    Celula(JogoCopa item) {
+
+        this.item = item;
+        this.proximo = null;
+
     }
 
     public JogoCopa getItem() {
+
         return item;
-    }
 
-    public Nodo getEsquerda() {
-        return esquerda;
-    }
-
-    public Nodo getDireita() {
-        return direita;
     }
 
     public void setItem(JogoCopa item) {
+
         this.item = item;
+
     }
 
-    public void setEsquerda(Nodo esquerda) {
-        this.esquerda = esquerda;
+    public Celula getProximo() {
+
+        return proximo;
+
     }
 
-    public void setDireita(Nodo direita) {
-        this.direita = direita;
+    public void setProximo(Celula proximo) {
+
+        this.proximo = proximo;
+
     }
+
 }
 
-public class CopasArvoreBinaria {
+class ListaEncadeada {
+
+    private Celula primeiro;
+    private Celula ultimo;
+    private int tamanho;
+
+    ListaEncadeada() {
+
+        Celula sentinela;
+        sentinela = new Celula();
+        primeiro = ultimo = sentinela;
+        tamanho = 0;
+
+    }
+
+    private boolean listaVazia() throws Exception {
+
+        if (primeiro == ultimo) {
+            return true;
+        } else {
+
+            return false;
+        }
+
+    }
+
+    public void inserir(int posicao, JogoCopa novo) throws Exception {
+
+        Celula novaCelula, proximaCelula, anterior;
+        int contador;
+
+        if ((posicao >= 0) && (posicao <= tamanho)) {
+
+            novaCelula = new Celula(novo);
+            contador = 0;
+            anterior = primeiro;
+
+            while (contador < posicao) {
+                anterior = anterior.getProximo();
+                contador++;
+            }
+
+            proximaCelula = anterior.getProximo();
+            anterior.setProximo(novaCelula);
+            novaCelula.setProximo(proximaCelula);
+            tamanho++;
+
+            // if(novaCelula.getProximo() == null){
+            if (ultimo == anterior) {
+                ultimo = novaCelula;
+            }
+            // }
+        } else {
+            throw new Exception("Posicao invalida");
+        }
+    }
+
+    public JogoCopa retirar(int posicao) throws Exception {
+
+        int contador;
+        Celula anterior, removido, proximCelula;
+        if (!listaVazia()) {
+            if ((posicao >= 0) && (posicao <= tamanho)) {
+
+                contador = 0;
+                anterior = primeiro;
+                while (contador < posicao) {
+                    anterior = anterior.getProximo();
+                    contador++;
+                }
+
+                removido = anterior.getProximo();
+                proximCelula = removido.getProximo();
+                anterior.setProximo(proximCelula);
+
+                if (removido == ultimo) {
+                    ultimo = anterior;
+
+                }
+
+                tamanho--;
+                return removido.getItem();
+            } else {
+                throw new Exception("Nao foi possivel retirar o item da lista: posicao invalida");
+            }
+        } else {
+            throw new Exception("Lista vazia");
+        }
+    }
+
+    // classe a ser implementada
+
+    public JogoCopa pesquisar(JogoCopa chave) {
+        Celula aux;
+
+        aux = primeiro.getProximo();
+
+        while (aux != null) {
+            if (aux.getItem() == chave) {
+
+                return aux.getItem();
+
+            } else {
+                aux = aux.getProximo();
+            }
+        }
+
+        return null;
+
+    }
+
+}
+
+class HashEnderecamentoSeparado {
+
+    private int M;
+    private ListaEncadeada[] tabela;
+    public static int comparar;
+
+    HashEnderecamentoSeparado(int tamanho) {
+        this.M = tamanho;
+        tabela = new ListaEncadeada[tamanho];
+        for (int i = 0; i < tamanho; i++) {
+            tabela[i] = new ListaEncadeada();
+        }
+
+    }
+
+    private int funcaoHash(JogoCopa chave) {
+
+        // chave.getSelecao1();
+        int soma;
+        int soma1 = 0;
+        int total;
+        soma = chave.getDia() + chave.getMes() + chave.getAno();
+
+        char selecoes[] = chave.getSelecao1().toCharArray();
+        for (int j = 0; j < selecoes.length; j++) {
+            soma1 = soma1 + selecoes[j] * (j + 1);
+        }
+        total = soma + soma1;
+        return total % M;
+
+    }
+
+    public void inserir(JogoCopa novo) throws Exception {
+        int posicao;
+        JogoCopa pesquisado;
+        posicao = funcaoHash(novo);
+        pesquisado = tabela[posicao].pesquisar(novo);
+        if (pesquisado == null) {
+            tabela[posicao].inserir(0, novo);
+        } else {
+            throw new Exception("Nao foi possivel inserir o elemento");
+        }
+    }
+
+    public JogoCopa pesquisar(JogoCopa chave) {
+        int posicao = funcaoHash(chave);
+        // String resultado;
+        JogoCopa pesquisados = tabela[posicao].pesquisar(chave);
+        if (pesquisados == null) {
+            comparar++;
+            // resultado = "NAO";
+            System.out.println("NAO");
+        } else if (pesquisados != null) {
+            comparar++;
+            System.out.println(posicao + " SIM");
+        }
+        // throw new Exception("Pesquisa sem sucesso");
+        return tabela[posicao].pesquisar(chave);
+    }
+
+}
+
+public class CopasHashEndSeparado {
     public static Scanner sc = new Scanner(System.in);
     public static JogoCopa games[] = new JogoCopa[1000];
     public static JogoCopa games2;
-    public static ABB Arvore = new ABB();
+    public static HashEnderecamentoSeparado TabelaHash = new HashEnderecamentoSeparado(761);
     public static long tempoFinal;
     // public static Jogo jogo;
 
@@ -241,7 +341,9 @@ public class CopasArvoreBinaria {
         while (!entrada.equals("FIM")) {
             games2 = fazer(entrada);
             try {
-                Arvore.inserir(games2);
+
+                TabelaHash.inserir(games2);
+
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -250,13 +352,14 @@ public class CopasArvoreBinaria {
         }
 
         // SEGUNDA PARTE
+
         entrada = MyIO.readLine();
 
         long tempoInicio = System.currentTimeMillis();
         while (!entrada.equals("FIM")) {
             games2 = fazer(entrada);
             try {
-                Arvore.pesquisar(games2);
+                TabelaHash.pesquisar(games2);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 e.printStackTrace();
@@ -266,8 +369,8 @@ public class CopasArvoreBinaria {
         }
         tempoFinal = System.currentTimeMillis() - tempoInicio;
 
-        arquivoEscrita = new ArquivoTextoEscrita("769233_arvoreBinaria.txt");
-        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, ABB.comparar);
+        arquivoEscrita = new ArquivoTextoEscrita("769233_hashSeparado.txt");
+        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, HashEnderecamentoSeparado.comparar);
         arquivoEscrita.escrever(conteudo);
         arquivoEscrita.fecharArquivo();
 

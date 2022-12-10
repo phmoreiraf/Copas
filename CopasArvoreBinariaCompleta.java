@@ -96,7 +96,6 @@ class ABB {
             comparar++;
             System.out.println("NAO");
             return null;
-
         } else {
             comparar++;
             jogoRaiz = raizsubarvore.getItem();
@@ -150,6 +149,89 @@ class ABB {
         return raizsubarvore;
     }
 
+    public void remover(JogoCopa chaveRemover) throws Exception {
+        this.raiz = remover(this.raiz, chaveRemover);
+    }
+
+    private Nodo remover(Nodo raizsubarvore, JogoCopa chaveRemover) throws Exception {
+
+        JogoCopa jogoRaiz;
+        Nodo esquerda, direita;
+
+        if (raizsubarvore == null) {
+            throw new Exception("Não foi possível remover o item da árvore: chave não encontrada!");
+
+        } else {
+            jogoRaiz = raizsubarvore.getItem();
+            esquerda = raizsubarvore.getEsquerda();
+            direita = raizsubarvore.getDireita();
+
+            if (chaveRemover.equals(jogoRaiz)) {
+                if (esquerda == null)
+                    raizsubarvore = direita;
+                else if (direita == null)
+                    raizsubarvore = esquerda;
+                else
+                    raizsubarvore.setEsquerda(antecessor(raizsubarvore, esquerda));
+            } else if (!chaveRemover.eMenor(jogoRaiz))
+                raizsubarvore.setDireita(remover(direita, chaveRemover));
+            else
+                raizsubarvore.setEsquerda(remover(esquerda, chaveRemover));
+        }
+
+        return raizsubarvore;
+    }
+
+    private Nodo antecessor(Nodo noRetirar, Nodo raizsubarvore) {
+
+        if (raizsubarvore.getDireita() != null)
+            raizsubarvore.setDireita(antecessor(noRetirar, raizsubarvore.getDireita()));
+        else {
+            noRetirar.setItem(raizsubarvore.getItem());
+            raizsubarvore = raizsubarvore.getEsquerda();
+        }
+
+        return raizsubarvore;
+    }
+
+    public void caminhamentoEmOrdem() {
+        caminhamentoEmOrdem(this.raiz);
+    }
+
+    private void caminhamentoEmOrdem(Nodo raizSubarvore) {
+
+        if (raizSubarvore != null) {
+            caminhamentoEmOrdem(raizSubarvore.getEsquerda());
+            raizSubarvore.getItem().imprimir();
+            caminhamentoEmOrdem(raizSubarvore.getDireita());
+        }
+    }
+
+    public void caminhamentoPreOrdem() throws Exception {
+        caminhamentoPreOrdem(this.raiz);
+    }
+
+    private void caminhamentoPreOrdem(Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore != null) {
+            raizSubarvore.getItem().imprimir();
+            caminhamentoPreOrdem(raizSubarvore.getEsquerda());
+            caminhamentoPreOrdem(raizSubarvore.getDireita());
+        }
+    }
+
+    public void caminhamentoPosOrdem() throws Exception {
+        caminhamentoPosOrdem(this.raiz);
+    }
+
+    private void caminhamentoPosOrdem(Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore != null) {
+            caminhamentoPosOrdem(raizSubarvore.getEsquerda());
+            caminhamentoPosOrdem(raizSubarvore.getDireita());
+            raizSubarvore.getItem().imprimir();
+        }
+    }
 }
 
 class Nodo {
@@ -157,16 +239,10 @@ class Nodo {
     private Nodo esquerda;
     private Nodo direita;
 
-    public Nodo(JogoCopa item) {
-        this.item = item;
-        this.esquerda = null;
-        this.direita = null;
-    }
-
-    public Nodo() {
-        this.item = new JogoCopa();
-        this.esquerda = null;
-        this.direita = null;
+    public Nodo(JogoCopa registro) {
+        item = registro;
+        esquerda = null;
+        direita = null;
     }
 
     public JogoCopa getItem() {
@@ -194,7 +270,7 @@ class Nodo {
     }
 }
 
-public class CopasArvoreBinaria {
+public class CopasArvoreBinariaCompleta {
     public static Scanner sc = new Scanner(System.in);
     public static JogoCopa games[] = new JogoCopa[1000];
     public static JogoCopa games2;

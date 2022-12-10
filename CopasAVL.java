@@ -76,11 +76,11 @@ class ArquivoTextoLeitura {
     }
 }
 
-class ABB {
+class AVL {
     private Nodo raiz;
     public static int comparar;
 
-    public ABB() {
+    public AVL() {
         raiz = null;
     }
 
@@ -147,58 +147,249 @@ class ABB {
             }
         }
 
-        return raizsubarvore;
+        return balancear(raizsubarvore);
     }
 
+    public void remover(JogoCopa chaveRemover) throws Exception {
+        this.raiz = remover(this.raiz, chaveRemover);
+    }
+
+    private Nodo remover(Nodo raizsubarvore, JogoCopa chaveRemover) throws Exception {
+
+        JogoCopa jogoRaiz;
+        Nodo esquerda, direita;
+
+        if (raizsubarvore == null) {
+            throw new Exception("Não foi possível remover o item da árvore: chave não encontrada!");
+
+        } else {
+            jogoRaiz = raizsubarvore.getItem();
+            esquerda = raizsubarvore.getEsquerda();
+            direita = raizsubarvore.getDireita();
+
+            if (chaveRemover.equals(jogoRaiz)) {
+                if (esquerda == null)
+                    raizsubarvore = direita;
+                else if (direita == null)
+                    raizsubarvore = esquerda;
+                else
+                    raizsubarvore.setEsquerda(antecessor(raizsubarvore, esquerda));
+            } else if (!chaveRemover.eMenor(jogoRaiz))
+                raizsubarvore.setDireita(remover(direita, chaveRemover));
+            else
+                raizsubarvore.setEsquerda(remover(esquerda, chaveRemover));
+        }
+
+        return balancear(raizsubarvore);
+    }
+
+    private Nodo antecessor(Nodo noRetirar, Nodo raizsubarvore) {
+
+        if (raizsubarvore.getDireita() != null)
+            raizsubarvore.setDireita(antecessor(noRetirar, raizsubarvore.getDireita()));
+        else {
+            noRetirar.setItem(raizsubarvore.getItem());
+            raizsubarvore = raizsubarvore.getEsquerda();
+        }
+
+        return balancear(raizsubarvore);
+    }
+
+    public void caminhamentoEmOrdem() {
+        caminhamentoEmOrdem(this.raiz);
+    }
+
+    private void caminhamentoEmOrdem(Nodo raizSubarvore) {
+
+        if (raizSubarvore != null) {
+            caminhamentoEmOrdem(raizSubarvore.getEsquerda());
+            raizSubarvore.getItem().imprimir();
+            caminhamentoEmOrdem(raizSubarvore.getDireita());
+        }
+    }
+
+    public void caminhamentoPreOrdem() throws Exception {
+        caminhamentoPreOrdem(this.raiz);
+    }
+
+    private void caminhamentoPreOrdem(Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore != null) {
+            raizSubarvore.getItem().imprimir();
+            caminhamentoPreOrdem(raizSubarvore.getEsquerda());
+            caminhamentoPreOrdem(raizSubarvore.getDireita());
+        }
+    }
+
+    public void caminhamentoPosOrdem() throws Exception {
+        caminhamentoPosOrdem(this.raiz);
+    }
+
+    private void caminhamentoPosOrdem(Nodo raizSubarvore) throws Exception {
+
+        if (raizSubarvore != null) {
+            caminhamentoPosOrdem(raizSubarvore.getEsquerda());
+            caminhamentoPosOrdem(raizSubarvore.getDireita());
+            raizSubarvore.getItem().imprimir();
+        }
+    }
+
+    public Nodo balancear(Nodo raizSubarvore) {
+        int fatorBalanceamento;
+        int fatorBalanceamentoFilho;
+
+        fatorBalanceamento = raizSubarvore.getFatorBalanceamento();
+        if (fatorBalanceamento == 2) {
+            // System.out.println("Arvore desbalanceada para a esquerda");
+            fatorBalanceamentoFilho = raizSubarvore.getEsquerda().getFatorBalanceamento();
+
+            if (fatorBalanceamentoFilho == -1) {
+                // System.out.println("Rotação dupla");
+                // System.out.println("Rotação a esquerda");
+                raizSubarvore.setEsquerda(rotacionarEsquerda(raizSubarvore.getEsquerda()));
+            }
+            // System.out.println("Rotação a direita");
+            raizSubarvore = rotacionarDireita(raizSubarvore);
+        } else if (fatorBalanceamento == -2) {
+            // System.out.println("Arvore desbalanceada para a direita");
+            fatorBalanceamentoFilho = raizSubarvore.getDireita().getFatorBalanceamento();
+            if (fatorBalanceamentoFilho == 1) {
+                // System.out.println("Rotacao dupla");
+                // System.out.println("Rotacao a direita");
+                raizSubarvore.setDireita(rotacionarDireita(raizSubarvore.getDireita()));
+
+            }
+            // System.out.println("Rotacao a esquerda");
+            raizSubarvore = rotacionarEsquerda(raizSubarvore);
+        } else {
+            raizSubarvore.setAltura();
+        }
+        return raizSubarvore;
+    }
+
+    private Nodo rotacionarDireita(Nodo p) {
+
+        Nodo u = p.getEsquerda();
+        Nodo filhoEsquerdaDireita = u.getDireita(); // TRIANGULO VERMELHO
+        p.setEsquerda(filhoEsquerdaDireita);
+        u.setDireita(p);
+
+        p.setAltura();
+        u.setAltura();
+
+        return u;
+    }
+
+    private Nodo rotacionarEsquerda(Nodo p) {
+
+        Nodo z = p.getDireita();
+        Nodo filhoDireitaEsquerda = z.getEsquerda(); // TRIANGULO VERMELHO
+        p.setDireita(filhoDireitaEsquerda);
+        z.setEsquerda(p);
+
+        p.setAltura();
+        z.setAltura();
+
+        return z;
+    }
 }
 
 class Nodo {
+
     private JogoCopa item;
     private Nodo esquerda;
     private Nodo direita;
+    private int altura;
 
     public Nodo(JogoCopa item) {
         this.item = item;
         this.esquerda = null;
         this.direita = null;
+        this.altura = 0;
     }
 
     public Nodo() {
         this.item = new JogoCopa();
         this.esquerda = null;
         this.direita = null;
+        this.altura = 0;
     }
 
     public JogoCopa getItem() {
         return item;
     }
 
-    public Nodo getEsquerda() {
-        return esquerda;
-    }
-
-    public Nodo getDireita() {
-        return direita;
-    }
-
     public void setItem(JogoCopa item) {
         this.item = item;
+    }
+
+    public Nodo getEsquerda() {
+        return esquerda;
     }
 
     public void setEsquerda(Nodo esquerda) {
         this.esquerda = esquerda;
     }
 
+    public Nodo getDireita() {
+        return direita;
+    }
+
     public void setDireita(Nodo direita) {
         this.direita = direita;
     }
+
+    public int getAltura() {
+        return altura;
+    }
+
+    public void setAltura() {
+        int alturaEsquerda, alturaDireita;
+        if (esquerda == null) {
+            alturaEsquerda = -1;
+        } else {
+            alturaEsquerda = esquerda.getAltura();
+        }
+
+        if (direita == null) {
+            alturaDireita = -1;
+        } else {
+            alturaDireita = direita.getAltura();
+        }
+
+        if (alturaEsquerda > alturaDireita) {
+            this.altura = alturaEsquerda + 1;
+        } else {
+            this.altura = alturaDireita + 1;
+        }
+    }
+
+    public int getFatorBalanceamento() {
+        int alturaEsquerda, alturaDireita;
+        if (esquerda == null) {
+            alturaEsquerda = -1;
+        } else {
+            alturaEsquerda = esquerda.getAltura();
+        }
+
+        if (direita == null) {
+            alturaDireita = -1;
+        } else {
+            alturaDireita = direita.getAltura();
+        }
+        return (alturaEsquerda - alturaDireita);
+    }
+
+    public void setFatorBalanceamento() {
+
+    }
 }
 
-public class CopasArvoreBinaria {
+public class CopasAVL {
     public static Scanner sc = new Scanner(System.in);
     public static JogoCopa games[] = new JogoCopa[1000];
     public static JogoCopa games2;
-    public static ABB Arvore = new ABB();
+    public static AVL Arvore = new AVL();
     public static long tempoFinal;
     // public static Jogo jogo;
 
@@ -250,6 +441,7 @@ public class CopasArvoreBinaria {
         }
 
         // SEGUNDA PARTE
+
         entrada = MyIO.readLine();
 
         long tempoInicio = System.currentTimeMillis();
@@ -266,8 +458,8 @@ public class CopasArvoreBinaria {
         }
         tempoFinal = System.currentTimeMillis() - tempoInicio;
 
-        arquivoEscrita = new ArquivoTextoEscrita("769233_arvoreBinaria.txt");
-        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, ABB.comparar);
+        arquivoEscrita = new ArquivoTextoEscrita("769233_arvoreAVL.txt");
+        String conteudo = String.format("769233\t\t%d\t%d", tempoFinal, AVL.comparar);
         arquivoEscrita.escrever(conteudo);
         arquivoEscrita.fecharArquivo();
 
